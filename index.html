@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>消防世界杯：金哨巡礼</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap');
+        .font-sport {
+            font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+        }
+        /* 绿茵场质感渐变背景 */
+        .pitch-bg {
+            background: radial-gradient(circle at center, #15803d 0%, #166534 60%, #14532d 100%);
+            background-size: cover;
+        }
+        /* 足球战术线条装饰 */
+        .pitch-lines {
+            background-image: 
+                radial-gradient(circle at 50% 50%, transparent 120px, rgba(255,255,255,0.08) 121px, rgba(255,255,255,0.08) 123px, transparent 124px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 40px;
+        }
+        /* 卡片滑入动画 */
+        .card-slide-in {
+            animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(40px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        /* 错误晃动动画 */
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="pitch-bg pitch-lines min-h-screen text-white font-sans flex flex-col justify-between overflow-x-hidden select-none">
+
+    <!-- 背景音乐控件 -->
+    <audio id="bgm-player" loop preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-black/40 backdrop-blur-md px-4 py-3 sticky top-0 z-30 border-b border-white/10">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="bg-red-600 text-white px-2 py-0.5 rounded text-xs font-bold font-sport">四川消防</span>
+                <h1 class="text-base font-bold font-sport tracking-wider text-green-300">消防世界杯</h1>
+            </div>
+            <!-- 静音开关 & 进度 -->
+            <div class="flex items-center gap-3">
+                <button id="btn-mute" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm focus:outline-none transition active:scale-90">
+                    <i id="mute-icon" class="fa-solid fa-volume-high text-yellow-400"></i>
+                </button>
+                <div class="bg-black/30 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border border-white/10">
+                    <i class="fa-solid fa-trophy text-yellow-400"></i>
+                    <span id="score-counter">积分: 0</span>
+                </div>
+                <div class="bg-black/30 px-3 py-1 rounded-full text-xs font-semibold border border-white/10">
+                    <span id="progress-text">1/12</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主战场 -->
+    <main class="flex-grow flex items-center justify-center p-4 max-w-md mx-auto w-full">
+        
+        <!-- 1. 欢迎开场界面 -->
+        <div id="welcome-panel" class="w-full bg-slate-950/90 border border-emerald-500/30 rounded-3xl p-6 text-center shadow-2xl backdrop-blur-md">
+            <!-- 视觉Icon -->
+            <div class="relative inline-block mb-4">
+                <div class="w-24 h-24 bg-gradient-to-tr from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto shadow-lg shadow-emerald-900/40">
+                    <i class="fa-solid fa-whistle text-white text-5xl"></i>
+                </div>
+                <div class="absolute -bottom-1 -right-1 bg-yellow-400 text-black px-2 py-0.5 rounded-lg text-xs font-bold rotate-12 shadow">VAR</div>
+            </div>
+            
+            <h2 class="text-2xl font-extrabold text-yellow-400 font-sport tracking-wider">消防世界杯：金哨巡礼</h2>
+            <p class="text-xs text-emerald-400 mt-1 mb-4 font-semibold tracking-widest">四川消防救援机动总队全媒体中心 监制</p>
+            
+            <p class="text-xs text-gray-300 leading-relaxed text-left bg-black/40 p-4 rounded-2xl mb-6 border border-white/5 space-y-2">
+                亲爱的裁判员：安全赛场没有法外之地！本场比赛共设置了<span class="text-yellow-400 font-bold">12个经典的安全场景哨点</span>（包含森林防火、家庭用火、防溺水）。<br>
+                请根据以下准则做出公正判罚：<br>
+                🟥 <strong class="text-red-400">红牌罚下</strong> — 违法、致命或极其危险的行为。<br>
+                🟨 <strong class="text-yellow-400">黄牌警告</strong> — 存在严重防守漏洞与消防隐患。<br>
+                🟢 <strong class="text-emerald-400">安全绿牌</strong> — 战术正确、教科书式的安全防守。
+            </p>
+
+            <button id="btn-game-start" class="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-950/50 transition duration-150 transform active:scale-95 text-lg font-sport tracking-widest">
+                <i class="fa-solid fa-play mr-2"></i> 开启金哨吹罚
+            </button>
+        </div>
+
+        <!-- 2. 答题对局界面 -->
+        <div id="game-panel" class="hidden w-full flex flex-col gap-5">
+            <!-- 问题卡片 -->
+            <div id="question-card" class="card-slide-in bg-slate-950/95 border border-white/10 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-md">
+                <!-- 顶部分类 -->
+                <div id="card-header" class="bg-gradient-to-r from-emerald-700 to-green-800 px-5 py-3 flex justify-between items-center border-b border-white/10">
+                    <span id="question-category" class="text-xs font-bold tracking-wider flex items-center gap-1.5 text-emerald-100">
+                        <i class="fa-solid fa-tree"></i> 森林防火
+                    </span>
+                    <span id="question-difficulty" class="text-xs text-emerald-300 font-medium">哨点难度: ⭐</span>
+                </div>
+                
+                <!-- 描述文本区 -->
+                <div class="p-6">
+                    <div class="bg-black/30 rounded-2xl p-5 mb-2 min-h-[160px] flex items-center justify-center border border-white/5 relative">
+                        <p id="question-desc" class="text-sm text-gray-100 leading-relaxed text-center font-medium">
+                            场景文字加载中...
+                        </p>
+                        <!-- 水印防伪 -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                            <i id="watermark" class="fa-solid fa-shield-halved text-8xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 决策按钮区 -->
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="handleUserDecision('yellow')" class="bg-gradient-to-b from-yellow-300 to-yellow-500 text-black font-extrabold py-4 px-2 rounded-2xl shadow-xl flex flex-col items-center justify-center gap-2 transform active:scale-95 transition-all border-b-4 border-yellow-600">
+                    <div class="w-6 h-9 bg-yellow-400 border-2 border-white rounded shadow-sm transform -rotate-6"></div>
+                    <span class="text-xs font-sport tracking-wider">黄牌警告</span>
+                </button>
+                
+                <button onclick="handleUserDecision('red')" class="bg-gradient-to-b from-red-500 to-red-700 text-white font-extrabold py-4 px-2 rounded-2xl shadow-xl flex flex-col items-center justify-center gap-2 transform active:scale-95 transition-all border-b-4 border-red-800">
+                    <div class="w-6 h-9 bg-red-500 border-2 border-white rounded shadow-sm transform rotate-6"></div>
+                    <span class="text-xs font-sport tracking-wider">红牌罚下</span>
+                </button>
+                
+                <button onclick="handleUserDecision('green')" class="bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-extrabold py-4 px-2 rounded-2xl shadow-xl flex flex-col items-center justify-center gap-2 transform active:scale-95 transition-all border-b-4 border-emerald-800">
+                    <div class="w-6 h-9 bg-emerald-500 border-2 border-white rounded shadow-sm flex items-center justify-center"><i class="fa-solid fa-check text-[10px]"></i></div>
+                    <span class="text-xs font-sport tracking-wider">安全绿牌</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. VAR判定结果弹窗 -->
+        <div id="var-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="w-full max-w-md bg-slate-950 border-2 border-yellow-500/40 rounded-3xl overflow-hidden shadow-2xl">
+                <!-- 模拟VAR裁判荧幕 -->
+                <div class="bg-yellow-500 text-black px-5 py-3 flex justify-between items-center font-sport">
+                    <div class="flex items-center gap-2">
+                        <span class="animate-pulse h-2 w-2 rounded-full bg-red-600"></span>
+                        <span class="font-bold text-sm">VAR 视频助理判定中</span>
+                    </div>
+                    <i class="fa-solid fa-tv text-sm"></i>
+                </div>
+                
+                <div class="p-5 flex flex-col items-center text-center">
+                    <!-- 反馈动画ICON -->
+                    <div id="var-feedback-icon" class="mb-3"></div>
+                    
+                    <h3 id="var-title" class="text-xl font-bold font-sport">判罚正确/错误</h3>
+                    <p id="var-subtitle" class="text-xs text-yellow-400 font-semibold mt-1 mb-3">判定解析：红色/黄色/绿色</p>
+                    
+                    <!-- 官方科普小卡 -->
+                    <div class="bg-black/50 rounded-2xl p-4 text-left border border-white/5 w-full mb-5 max-h-48 overflow-y-auto">
+                        <h4 class="text-emerald-400 text-xs font-bold tracking-wider mb-1 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-info"></i> 四川消防科普绿茵提示：
+                        </h4>
+                        <p id="var-explanation" class="text-xs text-gray-300 leading-relaxed">
+                            这里是详细的解释。
+                        </p>
+                    </div>
+
+                    <!-- 下一个按钮 -->
+                    <button id="btn-next-question" class="w-full bg-white text-black font-extrabold py-3 rounded-xl shadow-md hover:bg-gray-100 transition duration-150 transform active:scale-95 flex items-center justify-center gap-1.5 text-sm">
+                        <span>下一回合 (Next Round)</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 结算面板 -->
+        <div id="result-panel" class="hidden w-full bg-slate-950/90 border border-yellow-500/30 rounded-3xl p-6 text-center shadow-2xl backdrop-blur-md">
+            <div class="w-20 h-20 bg-gradient-to-tr from-yellow-400 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-3 border-2 border-slate-900 shadow-xl">
+                <i class="fa-solid fa-award text-white text-4xl"></i>
+            </div>
+            
+            <h2 class="text-2xl font-extrabold text-yellow-400 font-sport">金哨巡礼：终场鸣哨</h2>
+            <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-4">四川消防救援机动总队全媒体中心</p>
+
+            <!-- 数据盘 -->
+            <div class="bg-black/40 rounded-2xl p-4 mb-5 border border-white/5 space-y-3.5">
+                <div class="flex justify-between items-center text-xs pb-2 border-b border-white/5">
+                    <span class="text-gray-400">总判罚场次：</span>
+                    <span class="font-bold text-sm">12 场</span>
+                </div>
+                <div class="flex justify-between items-center text-xs pb-2 border-b border-white/5">
+                    <span class="text-gray-400">执规正确率：</span>
+                    <span id="res-accuracy" class="font-bold text-sm text-emerald-400">100%</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-gray-400">安全金哨积分：</span>
+                    <span id="res-score" class="font-bold text-xl text-yellow-400 font-sport">120 分</span>
+                </div>
+            </div>
+
+            <!-- 段位评定 -->
+            <div class="mb-6">
+                <p class="text-[11px] text-gray-400 mb-1">您的安全裁判段位是：</p>
+                <div class="inline-block bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 p-[1px] rounded-full">
+                    <div class="bg-slate-950 px-5 py-1.5 rounded-full">
+                        <span id="res-rank" class="text-base font-bold font-sport text-white tracking-widest">荣耀金哨主裁</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 重玩 & 分享 -->
+            <div class="flex gap-2 text-sm">
+                <button onclick="resetGame()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition active:scale-95 border border-white/10">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> 重新执教
+                </button>
+                <button onclick="toggleShareOverlay(true)" class="flex-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95">
+                    <i class="fa-solid fa-share-nodes mr-1"></i> 秀出金哨
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="p-4 text-center text-[10px] text-white/30 max-w-md mx-auto w-full border-t border-white/5 bg-black/10">
+        <p class="font-semibold text-white/40">四川消防救援机动总队全媒体中心 制作</p>
+        <p class="mt-0.5 text-[8px] tracking-widest">预防为主 • 生命至上 • 合理守线</p>
+    </footer>
+
+    <!-- 分享引导浮层 -->
+    <div id="share-overlay" class="hidden fixed inset-0 bg-black/95 z-50 flex flex-col justify-start items-end p-6" onclick="toggleShareOverlay(false)">
+        <div class="text-right text-yellow-400 flex flex-col items-end gap-2 mb-8">
+            <i class="fa-solid fa-arrow-turn-up text-4xl mr-4 animate-bounce"></i>
+            <p class="text-base font-bold">请点击微信右上角菜单</p>
+            <p class="text-xs text-gray-300">分享朋友圈或推荐给身边的朋友</p>
+            <p class="text-xs text-gray-300">和大家一起在“消防世界杯”中公正判罚！</p>
+        </div>
+        <div class="w-full text-center mt-20">
+            <div class="inline-block border border-dashed border-white/20 p-5 rounded-2xl bg-white/5">
+                <p id="share-card-text" class="text-xs font-bold text-emerald-300 mb-1">我是消防世界杯金哨哨长，你也来吹哨吧！</p>
+                <p class="text-[9px] text-gray-500">守护安全绿场，避免生活犯规</p>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-8">[ 点击任意地方关闭提示 ]</p>
+        </div>
+    </div>
+
+    <!-- 音效合成播放引擎 -->
+    <script>
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.isMuted = false;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                const bgm = document.getElementById('bgm-player');
+                if (this.isMuted) {
+                    bgm.pause();
+                } else {
+                    bgm.play().catch(() => {});
+                }
+                return this.isMuted;
+            }
+            playCorrect() {
+                this.init();
+                if (this.isMuted || !this.ctx) return;
+                
+                let osc1 = this.ctx.createOscillator();
+                let osc2 = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                let now = this.ctx.currentTime;
+                
+                // 清脆的叮咚双音
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(523.25, now); // C5
+                osc1.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(783.99, now + 0.15); // G5
+                
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                
+                osc1.start(now);
+                osc2.start(now + 0.15);
+                
+                osc1.stop(now + 0.4);
+                osc2.stop(now + 0.4);
+            }
+            playIncorrect() {
+                this.init();
+                if (this.isMuted || !this.ctx) return;
+                
+                let osc = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                let now = this.ctx.currentTime;
+                
+                // 刺耳警告声
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.setValueAtTime(140, now + 0.12);
+                
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                
+                osc.start(now);
+                osc.stop(now + 0.35);
+            }
+            playWhistle() {
+                this.init();
+                if (this.isMuted || !this.ctx) return;
+                
+                let osc1 = this.ctx.createOscillator();
+                let osc2 = this.ctx.createOscillator();
+                let gain = this.ctx.createGain();
+                
+                osc1.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                let now = this.ctx.currentTime;
+                
+                osc1.type = 'sine';
+                osc2.type = 'triangle';
+                
+                // 模拟哨声特征频率
+                osc1.frequency.setValueAtTime(2450, now);
+                osc2.frequency.setValueAtTime(2480, now);
+                
+                // 哨声急速震颤波动效果
+                for(let i = 0; i < 20; i++) {
+                    let timeOffset = now + i * 0.015;
+                    let freqOffset = Math.sin(i) * 60;
+                    osc1.frequency.setValueAtTime(2450 + freqOffset, timeOffset);
+                    osc2.frequency.setValueAtTime(2480 + freqOffset, timeOffset);
+                }
+                
+                gain.gain.setValueAtTime(0.18, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                
+                osc1.start(now);
+                osc2.start(now);
+                
+                osc1.stop(now + 0.3);
+                osc2.stop(now + 0.3);
+            }
+        }
+
+        const audio = new SoundEngine();
+    </script>
+
+    <!-- 游戏核心逻辑 -->
+    <script>
+        // 12道专业关卡题库
+        const questionDatabase = [
+            {
+                id: 1,
+                category: "🌲 森林防火",
+                tagColor: "from-emerald-700 to-green-800",
+                icon: "fa-tree",
+                difficulty: "⭐",
+                description: "在林区露营，烤肉结束后，小王直接捧起泥土把还没完全熄灭的黑炭掩埋，觉得万无一失就动身离场了。",
+                correctAnswer: "yellow",
+                title: "防火警戒，应予黄牌！",
+                explanation: "森林防守严禁疏忽！野外用炭火烤肉后仅用土掩埋极易在风吹后发生‘死灰复燃’。正确做法是必须用水彻底浇灭并确认无余热后再行离开。"
+            },
+            {
+                id: 2,
+                category: "🏠 家庭防火",
+                tagColor: "from-blue-700 to-indigo-800",
+                icon: "fa-house-fire",
+                difficulty: "⭐⭐",
+                description: "厨房油锅炒菜不慎突然起火，张阿姨情急之下，立刻接了一盆冰凉的自来水用力泼向起火的油锅中。",
+                correctAnswer: "red",
+                title: "致命犯规，直接红牌！",
+                explanation: "极其危险的违规操作！油遇冷水会迅速汽化并夹带沸油飞溅，瞬间引燃整间厨房。遇油锅起火应冷静使用锅盖或灭火毯窒息灭火并切断气源。"
+            },
+            {
+                id: 3,
+                category: "🌊 防溺水安全",
+                tagColor: "from-sky-600 to-blue-700",
+                icon: "fa-person-swimming",
+                difficulty: "⭐",
+                description: "盛夏中午，小强约了同学一起去村外水库野浴游玩。尽管岸边树立了‘严禁野泳’的告示牌，但小强坚信不游深水区就非常安全。",
+                correctAnswer: "red",
+                title: "严重违规，红牌罚下！",
+                explanation: "生命禁区，严禁无牌违犯！野生水域河床复杂、可能有冰冷暗流和淤泥。一旦入水，极难自救。所有无视警示野泳的行为必须红牌驱逐！"
+            },
+            {
+                id: 4,
+                category: "🌲 森林防火",
+                tagColor: "from-emerald-700 to-green-800",
+                icon: "fa-tree",
+                difficulty: "⭐⭐",
+                description: "清明祭扫林区先人，张大爷提前买好纸钱，并在林区的背风树阴空地上生火焚烧，认为反正有石头压着肯定吹不走。",
+                correctAnswer: "red",
+                title: "违法用火，红牌离场！",
+                explanation: "绝对违规！林区野外严禁一切用火祭祀行为。风势突变极易导致飞火引发山崩。提倡用鲜花、网络祭扫等文明方式祭祀。"
+            },
+            {
+                id: 5,
+                category: "🏠 家庭防火",
+                tagColor: "from-blue-700 to-indigo-800",
+                icon: "fa-house-fire",
+                difficulty: "⭐",
+                description: "高层居民楼的楼道通道属于公共区域，邻居为了不占用自己家空间，把几个破鞋柜和快递旧纸箱整整齐齐地码放在楼道拐角。",
+                correctAnswer: "red",
+                title: "堵塞通道，红牌整改！",
+                explanation: "楼道是唯一的生命疏散通道！堆放纸箱属易燃物，堆放鞋柜极易阻碍消防员搜救及人员快速撤离，违反我国《消防法》。必须红牌清理！"
+            },
+            {
+                id: 6,
+                category: "🌊 防溺水安全",
+                tagColor: "from-sky-600 to-blue-700",
+                icon: "fa-person-swimming",
+                difficulty: "⭐⭐",
+                description: "江边散步，小明惊觉有一名垂钓游客意外滑入深水中挣扎呼救。小明大声呼救并拨打110/119，同时机智地在岸上找到一根长竹竿递给对方。",
+                correctAnswer: "green",
+                title: "教科书级救防，出示绿牌！",
+                explanation: "满分防守战术！岸上借力救援、大声呼救并借助竹竿、长绳或泡沫等漂浮物是确保自身安全的黄金准则。避免盲目徒手下水施救。"
+            },
+            {
+                id: 7,
+                category: "🌲 森林防火",
+                tagColor: "from-emerald-700 to-green-800",
+                icon: "fa-tree",
+                difficulty: "⭐",
+                description: "进入自然景区，护林安检人员要求小陈交出背包里的多盒火柴和一次性打火机，小陈全力配合并主动放进暂存箱中。",
+                correctAnswer: "green",
+                title: "守线典范，绿牌通行！",
+                explanation: "森林防线有你更稳！入山禁止携带火源、火种，从源头杜绝隐患发生。给小陈的遵纪守法亮出绝对的安全通行绿牌！"
+            },
+            {
+                id: 8,
+                category: "🏠 家庭防火",
+                tagColor: "from-blue-700 to-indigo-800",
+                icon: "fa-house-fire",
+                difficulty: "⭐⭐",
+                description: "小何图睡觉方便，每天睡前都顺手将正在充电的充电宝或长线充电中的智能手机压在枕头或厚重的被子底下一整晚。",
+                correctAnswer: "yellow",
+                title: "存在过热漏洞，黄牌警告！",
+                explanation: "危险防守！充电设备在厚被压盖下极难散热，热量积聚极易导致电池发生热失控起火引燃床单。应放置在坚固且散热好的台面充电。"
+            },
+            {
+                id: 9,
+                category: "🌊 防溺水安全",
+                tagColor: "from-sky-600 to-blue-700",
+                icon: "fa-person-swimming",
+                difficulty: "⭐⭐⭐",
+                description: "两个未成年人在无监管的河边玩耍，其中一人失足坠落入水，另一位慌神之下，不假思索立刻扑入水中想徒手拉起对方。",
+                correctAnswer: "red",
+                title: "盲目下水极度危险，红牌阻拦！",
+                explanation: "这是常见的二次悲剧诱因。未成年人或未受训练者盲目下水，极易被溺水者因求生本能死死抱拽导致双双溺亡。应立刻岸上大声求援或抛洒竹竿！"
+            },
+            {
+                id: 10,
+                category: "🏠 家庭防火",
+                tagColor: "from-blue-700 to-indigo-800",
+                icon: "fa-house-fire",
+                difficulty: "⭐⭐⭐",
+                description: "夜晚厨房传来淡淡的异味气体，小李怀疑家里的燃气胶管有裂痕泄露。为了看清裂口，小李按下吸顶灯开关并点火准备检测。",
+                correctAnswer: "red",
+                title: "严重红牌，严防爆炸！",
+                explanation: "这是毁灭性行为！漏气时开灯、使用明火均能瞬间激发电火花引燃积聚的高浓度燃气，极易引发严重燃气爆炸！应迅速开窗，并在室外安全地带拨号求救。"
+            },
+            {
+                id: 11,
+                category: "🌲 森林防火",
+                tagColor: "from-emerald-700 to-green-800",
+                icon: "fa-tree",
+                difficulty: "⭐",
+                description: "小杨到四川林区公墓祭拜逝去先辈。不烧纸不燃鞭炮，而是通过在墓地敬献鲜花及全家植一株青松的形式来缅怀纪念。",
+                correctAnswer: "green",
+                title: "绿色新风，安全绿牌！",
+                explanation: "完全正确！用低碳环保、不带火源的安全文明祭祀替代传统烟熏火烤，彻底消除山林火警隐患，理应出示绿牌模范表彰！"
+            },
+            {
+                id: 12,
+                category: "🏠 家庭防火",
+                tagColor: "from-blue-700 to-indigo-800",
+                icon: "fa-house-fire",
+                difficulty: "⭐⭐⭐",
+                description: "小王刚入购了一辆高配电动自行车。虽然知道进楼充电不对，但他心疼新电瓶在充电棚受冻，执意每天把电池搬到自家卧室充电12小时。",
+                correctAnswer: "red",
+                title: "红牌出局，杜绝电池入户！",
+                explanation: "绝对犯规！室内尤其是卧室内电瓶爆燃极具毒性且无逃生时间！高层居民建筑违规停放或给电池入户充电属违法行为。必须在小区室外集中充电站安全充电！"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswersCount = 0;
+
+        // 获取面板元素
+        const welcomePanel = document.getElementById('welcome-panel');
+        const gamePanel = document.getElementById('game-panel');
+        const resultPanel = document.getElementById('result-panel');
+        const varModal = document.getElementById('var-modal');
+
+        const qCategory = document.getElementById('question-category');
+        const qDifficulty = document.getElementById('question-difficulty');
+        const qDesc = document.getElementById('question-desc');
+        const watermark = document.getElementById('watermark');
+        const cardHeader = document.getElementById('card-header');
+
+        const scoreCounter = document.getElementById('score-counter');
+        const progressText = document.getElementById('progress-text');
+
+        const varFeedbackIcon = document.getElementById('var-feedback-icon');
+        const varTitle = document.getElementById('var-title');
+        const varSubtitle = document.getElementById('var-subtitle');
+        const varExplanation = document.getElementById('var-explanation');
+
+        // BGM 自动播放激活逻辑
+        document.getElementById('btn-game-start').addEventListener('click', () => {
+            audio.init();
+            audio.playWhistle();
+            
+            const bgm = document.getElementById('bgm-player');
+            if(!audio.isMuted) {
+                bgm.play().catch(e => {
+                    console.log("音频播放受到浏览器拦截，需用户手势确认");
+                });
+            }
+            
+            welcomePanel.classList.add('hidden');
+            gamePanel.classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswersCount = 0;
+            
+            loadQuestion();
+        });
+
+        // 绑定静音功能
+        document.getElementById('btn-mute').addEventListener('click', () => {
+            const isMutedNow = audio.toggleMute();
+            const muteIcon = document.getElementById('mute-icon');
+            if(isMutedNow) {
+                muteIcon.className = "fa-solid fa-volume-xmark text-gray-400 animate-none";
+            } else {
+                muteIcon.className = "fa-solid fa-volume-high text-yellow-400";
+            }
+        });
+
+        // 载入题目
+        function loadQuestion() {
+            const currentQuestion = questionDatabase[currentQuestionIndex];
+            
+            // 重置动画
+            const card = document.getElementById('question-card');
+            card.classList.remove('card-slide-in', 'shake-animation');
+            void card.offsetWidth; // 触发页面重绘
+            card.classList.add('card-slide-in');
+
+            // 填充内容
+            qCategory.innerHTML = `<i class="fa-solid ${getIcon(currentQuestion.category)} mr-1"></i> ${currentQuestion.category}`;
+            qDifficulty.textContent = `哨点难度: ${currentQuestion.difficulty}`;
+            qDesc.textContent = currentQuestion.description;
+            watermark.className = `fa-solid ${getIcon(currentQuestion.category)} text-8xl`;
+            cardHeader.className = `bg-gradient-to-r ${currentQuestion.tagColor} px-5 py-3 flex justify-between items-center border-b border-white/10`;
+
+            scoreCounter.textContent = `积分: ${score}`;
+            progressText.textContent = `${currentQuestionIndex + 1}/${questionDatabase.length}`;
+        }
+
+        // 获取对应的图标
+        function getIcon(category) {
+            if (category.includes("🌲")) return "fa-tree";
+            if (category.includes("🏠")) return "fa-house-fire";
+            if (category.includes("🌊")) return "fa-person-swimming";
+            return "fa-shield-halved";
+        }
+
+        // 处理决策判定
+        function handleUserDecision(userChoice) {
+            const currentQuestion = questionDatabase[currentQuestionIndex];
+            const isCorrect = (userChoice === currentQuestion.correctAnswer);
+
+            if (isCorrect) {
+                correctAnswersCount++;
+                score += 10;
+                audio.playCorrect();
+                
+                varFeedbackIcon.innerHTML = `
+                    <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900 animate-bounce">
+                        <i class="fa-solid fa-circle-check text-white text-3xl"></i>
+                    </div>
+                `;
+                varTitle.innerHTML = `<span class="text-emerald-400 font-sport">判定正确！+10分</span>`;
+            } else {
+                audio.playIncorrect();
+                document.getElementById('question-card').classList.add('shake-animation');
+                
+                varFeedbackIcon.innerHTML = `
+                    <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-lg border-2 border-slate-900">
+                        <i class="fa-solid fa-triangle-exclamation text-white text-3xl"></i>
+                    </div>
+                `;
+                varTitle.innerHTML = `<span class="text-red-500 font-sport">判定错漏！判罚有误</span>`;
+            }
+
+            varSubtitle.textContent = `正确判罚应该是: ${getCardText(currentQuestion.correctAnswer)}`;
+            varExplanation.innerHTML = `<strong>主裁解析：</strong>${currentQuestion.explanation}`;
+            
+            // 弹出VAR面板
+            varModal.classList.remove('hidden');
+        }
+
+        function getCardText(type) {
+            if(type === 'red') return '🟥 红牌罚下 (严重行为)';
+            if(type === 'yellow') return '🟨 黄牌警告 (存安全隐患)';
+            return '🟢 安全绿牌 (完全合规)';
+        }
+
+        // 下一题或结算
+        document.getElementById('btn-next-question').addEventListener('click', () => {
+            varModal.classList.add('hidden');
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questionDatabase.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        // 结束页面展示
+        function showResults() {
+            gamePanel.classList.add('hidden');
+            resultPanel.classList.remove('hidden');
+            
+            const accuracy = Math.round((correctAnswersCount / questionDatabase.length) * 100);
+            document.getElementById('res-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('res-score').textContent = `${score} 分`;
+
+            // 评定段位
+            let rank = "";
+            if (accuracy === 100) {
+                rank = "👑 荣耀金哨大满贯";
+            } else if (accuracy >= 80) {
+                rank = "🏅 国际级金哨主裁";
+            } else if (accuracy >= 60) {
+                rank = "⚽ 职业安全助理裁判";
+            } else {
+                rank = "⚠️ 候补红黄牌见习员";
+            }
+            document.getElementById('res-rank').textContent = rank;
+        }
+
+        // 重新开始游戏
+        function resetGame() {
+            resultPanel.classList.add('hidden');
+            welcomePanel.classList.remove('hidden');
+        }
+
+        // 分享弹窗
+        function toggleShareOverlay(visible) {
+            const overlay = document.getElementById('share-overlay');
+            if(visible) {
+                const accuracy = Math.round((correctAnswersCount / questionDatabase.length) * 100);
+                const rank = document.getElementById('res-rank').textContent;
+                document.getElementById('share-card-text').textContent = `我是【${rank}】，在安全世界杯斩获 ${score} 分！敢来PK吗？`;
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
